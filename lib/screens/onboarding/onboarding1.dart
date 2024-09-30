@@ -58,7 +58,7 @@ class Onboarding1 extends StatelessWidget {
                     ),
                     const SizedBox(height: 48),
                     Image.asset('assets/images/loading1.png'),
-                    const SizedBox(height: 63),
+                    const SizedBox(height: 50),
                     InkWell(
                       onTap: () {
                         Navigator.push(

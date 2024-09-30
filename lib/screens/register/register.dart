@@ -5,6 +5,7 @@ import 'package:sowlab_assignment/components/custom_appbar.dart';
 import 'package:sowlab_assignment/components/custom_textfield.dart';
 import 'package:sowlab_assignment/constant/font_constant.dart';
 import 'package:sowlab_assignment/constant/color_constant.dart';
+import 'package:sowlab_assignment/controllers/user_controller.dart';
 import 'package:sowlab_assignment/screens/login/login.dart';
 import 'package:sowlab_assignment/screens/register/farm_info.dart';
 
@@ -22,6 +23,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       TextEditingController();
 
   bool isLoading = false;
+
+  final AuthService _authService = AuthService();
 
   Future<void> registerUser() async {
     final String apiUrl = "https://sowlab.com/assignment/user/register";
@@ -77,6 +80,28 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
+  Future<void> registerWithGoogle() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final user = await _authService.signInWithGoogle();
+
+    if (user != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return FarmInfo();
+      }));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Google sign-up failed. Please try again.')),
+      );
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +124,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 children: [
                   _buildSocialButton(
                     'assets/images/google_logo.png',
-                    onPressed: () {},
+                    onPressed: registerWithGoogle,
                   ),
                   _buildSocialButton(
                     'assets/images/apple_logo.png',

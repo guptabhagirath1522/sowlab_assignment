@@ -1,11 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sowlab_assignment/screens/homescreen/homescreen.dart';
-import 'package:sowlab_assignment/screens/login/login.dart';
+import 'package:sowlab_assignment/firebase_options.dart';
 import 'package:sowlab_assignment/screens/onboarding/onboarding1.dart';
-import 'package:sowlab_assignment/screens/register/register.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 

@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:sowlab_assignment/components/custom_appbar.dart';
 import 'package:sowlab_assignment/components/custom_textfield.dart';
@@ -18,13 +20,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final ApiService apiService = ApiService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   void _login() async {
     final response = await apiService.login(
       emailController.text,
       passwordController.text,
     );
-    print("Response: ${response.statusCode}");
     if (response.statusCode == 200) {
       Navigator.pushReplacement(
         context,
@@ -33,6 +36,41 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login failed. Please try again.')),
+      );
+    }
+  }
+
+  // Google Sign-In Method
+  Future<void> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        return; // User canceled the sign-in
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+
+      if (userCredential.user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomePage()),
+        );
+      }
+    } catch (e) {
+      print('Error during Google Sign-In: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Google Sign-In failed. Please try again.')),
       );
     }
   }
@@ -73,7 +111,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                     .copyWith(color: primary, fontSize: 10),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    // Navigate to the registration page
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -157,9 +194,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             _buildSocialButton(
                               'assets/images/google_logo.png',
-                              onPressed: () {
-                                print('Google sign-in pressed');
-                              },
+                              onPressed:
+                                  _signInWithGoogle, // Google sign-in button
                             ),
                             _buildSocialButton(
                               'assets/images/apple_logo.png',
